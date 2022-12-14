@@ -25,10 +25,11 @@ we alse offer preprocessing log key sequences by [here](https://drive.google.com
 
 ### LDAP
 LDAP original log data: [here](https://drive.google.com/file/d/1mDKcYrXXD3ylY8EdzE2lqvl3uBddzCxf/view?usp=share_link)
-we alse offer preprocessing log key sequences by [here](https://drive.google.com/file/d/1S9REkg2aONADkz9Vv-TqLrKxaMjCAgO1/view?usp=sharing).
+
+We alse offer preprocessing log key sequences by [here](https://drive.google.com/file/d/1S9REkg2aONADkz9Vv-TqLrKxaMjCAgO1/view?usp=sharing).
 
 ### Preprocessing data 
-we used same Preprocessing method with LogBERT in HDFS and BGL datasets.
+We used same Preprocessing method with LogBERT in HDFS and BGL datasets.
 
 Preprocessed data in this work can download by [here](https://drive.google.com/file/d/1S9REkg2aONADkz9Vv-TqLrKxaMjCAgO1/view?usp=sharing).
 
