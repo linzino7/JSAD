@@ -1,18 +1,15 @@
-System log anomaly detection with joint probability analysis
+System Abnormality Detection by Deep Learning and Joint Histogram Analysis
 ========
 
-![Overview of Our method](https://raw.githubusercontent.com/linzino7/System-log-anomaly-detection-with-join-histogram-analysis/main/overview.PNG)
-
-
-System anomaly detection is a critical problem to construct a secure and stable information
-system. Most anomaly detection methods detect anomalous activities through analyzing numerous
-system logs recorded during system running. In recent years, several deep learning-based
-methods have been proposed for system log anomaly detection. However, those methods may
-incorrectly detect an anomaly and highly misjudge normal log in OpenLDAP dataset. Therefore,
-we propose a method to convert logs into shorter representations via the joint probability
-analysis. Anomalous activities then can be recognized with multiple-input multiple-output autoencoder.
-We also use different datasets of various systems to demonstrate that the proposed
-method produced a superior performance than the previous deep learning-based methods.
+System abnormality detection is a critical issue for constructing and maintaining a secure and stable information system. 
+Most of abnormality detection methods identify anomalous activities through analyzing numerous system logs collected during system running.
+In recent years, several deep learning-based methods with log analysis have been proposed for system abnormality detection. 
+However, those methods may incorrectly detect an abnormality from a single event log with an excessive long length. 
+This paper proposes a method to convert an encoded log vector into a two-dimensional table via the joint histogram analysis.
+Thus, the proposed autoencoder with multiple two-dimensional convolution layers can construct a domain to describe the distribution of normal cases.
+An abnormality then can be identified through the method of one-class classification. 
+The experiment of performance evaluation used three log datasets collected from various information systems.
+The experimental results demonstrate that the proposed method produced superior performances than the those of previous deep learning-based methods.
 
 # Dataset
 ### HDFS 
