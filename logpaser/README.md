@@ -45,12 +45,12 @@ The LDAP dataset was collected from the unified authentication system of Nationa
 An event is composed of multiple rows of data. The length of rows depends on the type of event. Following is an example of event:
 
 ```
-Nov 10 15:59:23 proxy1 slapd[81950]: conn=69242 fd=8 ACCEPT from IP=192.168.0.1:51601 (IP=0.0.0.0:389)
+Nov 10 15:59:23 proxy1 slapd[81950]: conn=69242 fd=8 ACCEPT from IP=192.168.0.1:12345 (IP=0.0.0.0:123)
 Nov 10 15:59:23 proxy1 slapd[81950]: conn=69242 op=0 BIND dn="cn=portal,ou=other,o=nctu" method=128
 Nov 10 15:59:23 proxy1 slapd[81950]: conn=69242 op=0 BIND dn="cn=portal,ou=other,o=nctu" mech=SIMPLE ssf=0
 Nov 10 15:59:23 proxy1 slapd[81950]: conn=69242 op=0 RESULT tag=97 err=0 text=
 Nov 10 15:59:23 proxy1 slapd[81950]: conn=69242 op=1 SRCH base="o=nctu" scope=2 deref=0 filter="(&(cn=0000000)(objectClass=person))"
-Nov 10 15:59:23 proxy1 slapd[81950]: conn=69242 op=1 SRCH attr=cn dn ou birthday idno mail sn givenname hit hitans l nctuemail
+Nov 10 15:59:23 proxy1 slapd[81950]: conn=69242 op=1 SRCH attr=cn dn ou idno mail sn hit hitans l email
 Nov 10 15:59:23 proxy1 slapd[81950]: conn=69242 op=1 SEARCH RESULT tag=101 err=0 nentries=1 text=
 Nov 10 15:59:23 proxy1 slapd[81950]: conn=69242 op=2 UNBIND
 Nov 10 15:59:23 proxy1 slapd[81950]: conn=69242 fd=8 closed
