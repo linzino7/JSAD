@@ -21,7 +21,7 @@ BGL original log data: https://github.com/logpai/loghub/tree/master/BGL
 we alse offer preprocessing log key sequences by [here](https://drive.google.com/file/d/1S9REkg2aONADkz9Vv-TqLrKxaMjCAgO1/view?usp=sharing).
 
 ### LDAP
-LDAP original log data: [here](https://drive.google.com/file/d/1mDKcYrXXD3ylY8EdzE2lqvl3uBddzCxf/view?usp=share_link)
+LDAP original log data: [here](https://drive.google.com/file/d/15K67PZfiecwCiE9ziqtGxKAy2T2Q1I3c/view?usp=share_link)
 
 We alse offer preprocessing log key sequences by [here](https://drive.google.com/file/d/1S9REkg2aONADkz9Vv-TqLrKxaMjCAgO1/view?usp=sharing).
 
