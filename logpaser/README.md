@@ -60,7 +60,7 @@ A LDAP log typically starts with "conn=XXX fd=X ACCEPT ..." and ends with "conn=
 The log parser then can be applied to encode an event to a log vector as shown as follows:
 
 ```
-73704 1 2 1 1 3 4 4 5 5	0.
+73704 1 2 1 1 3 4 4 5 5 0
 ```
 
 A log vector consists of three components that are event ID, log keys, and lable, where the label is one or zero to represent normal or anomaly event. In the above example, the event ID is "73704", log keys are "1 2 1 1 3 4 4 5 5", and the label is zero.
