@@ -5,9 +5,6 @@ import torch.nn.functional as F
 
 from base.base_net import BaseNet
 
-
-
-
 class IndentityBlock(nn.Module):
     def __init__(self, in_channel, f, filters):
         super(IndentityBlock,self).__init__()
@@ -30,22 +27,26 @@ class IndentityBlock(nn.Module):
         X = self.relu_1(X)
         return X
 
-class ConvEncoder(BaseNet):
+class RestConvEncoder(BaseNet):
     
-    def __init__(self, encoded_space_dim, conv_dim , unflattened_size , rep_dim=32):
+    def __init__(self, encoded_space_dim, conv_dim , unflattened_size , rep_dim=32, topN=64):
         super().__init__()
 
         self.rep_dim = rep_dim
         self.conv_dim = conv_dim
-
+        
         ### Convolutional section
         self.encoder_cnn = nn.Sequential(
             nn.Conv2d(1, 8, 3, stride=2), # in_channels, out_channels, kernel_size,
             nn.BatchNorm2d(8),
             nn.ReLU(True),
+            IndentityBlock(8, 3, [2, 2, 8]),
+            IndentityBlock(8, 3, [2, 2, 8]),
             nn.Conv2d(8, 16, 3, stride=2),
-            nn.BatchNorm2d(16),
+            #nn.BatchNorm2d(16),
             nn.ReLU(True),
+            IndentityBlock(16, 3, [4, 4, 16]),
+            IndentityBlock(16, 3, [4, 4, 16]),
             nn.Conv2d(16, 32, 3, stride=2),
             nn.ReLU(True),
             nn.MaxPool2d(2, stride=2,padding=1),
@@ -53,16 +54,16 @@ class ConvEncoder(BaseNet):
         
         ### Flatten layer
         self.flatten = nn.Flatten(start_dim=1)
-
-        ### Linear section
+### Linear section
         self.encoder_lin = nn.Sequential(
-            nn.Linear(conv_dim, 128),  # chnnel * Hout * Wout from laset conv2d output 32*32=32*3*3    64= 32*7*7
+            nn.Linear(conv_dim, 128),   # chnnel * Hout * Wout from laset conv2d output #64 = 32*7*7 #32 =32*3*3
             nn.ReLU(True),
             nn.Linear(128, encoded_space_dim)
         )
+
         
-    def forward(self, x):
-        x = self.encoder_cnn(x)
+    def forward(self, graph):
+        x = self.encoder_cnn(graph)
         x = self.flatten(x)
         x = self.encoder_lin(x)
         return x
@@ -70,12 +71,11 @@ class ConvEncoder(BaseNet):
 
 class ConvDecoder(BaseNet):
     
-    def __init__(self, encoded_space_dim, conv_dim, unflattened_size):
+    def __init__(self, encoded_space_dim,conv_dim,unflattened_size, topN=64):
         super().__init__()
-
         self.conv_dim = conv_dim
         self.unflattened_size = unflattened_size
-
+        self.topN = topN
         self.decoder_lin = nn.Sequential(
             nn.Linear(encoded_space_dim, 128),
             nn.ReLU(True),
@@ -84,16 +84,20 @@ class ConvDecoder(BaseNet):
         )
 
         self.unflatten = nn.Unflatten(dim=1, 
-        unflattened_size=self.unflattened_size)
+        unflattened_size=unflattened_size)
 
         self.decoder_conv = nn.Sequential(
             nn.Upsample(scale_factor=2, mode='nearest'),
             nn.ConvTranspose2d(32, 16, 2, stride=2, output_padding=0),
             nn.BatchNorm2d(16),
             nn.ReLU(True),
+            IndentityBlock(16, 3, [4, 4, 16]),
+            IndentityBlock(16, 3, [4, 4, 16]),
             nn.ConvTranspose2d(16, 8, 2, stride=2,output_padding=0),
             nn.BatchNorm2d(8),
             nn.ReLU(True),
+            IndentityBlock(8, 3, [2, 2, 8]),
+            IndentityBlock(8, 3, [2, 2, 8]),
             nn.ConvTranspose2d(8, 1, 2, stride=2, output_padding=0)
         )
         
@@ -106,7 +110,7 @@ class ConvDecoder(BaseNet):
 
 
 
-class Conv_Autoencoder(BaseNet):
+class RestConv_Autoencoder(BaseNet):
     '''
     encoded_space_dim= rep_dim
 
@@ -115,13 +119,14 @@ class Conv_Autoencoder(BaseNet):
         super().__init__()
 
         self.rep_dim = rep_dim
-        self.encoder = ConvEncoder(encoded_space_dim, conv_dim, unflattened_size, rep_dim)
-        self.decoder = ConvDecoder(encoded_space_dim, conv_dim, unflattened_size)
+        print('AE',topN)
+        self.encoder = RestConvEncoder(encoded_space_dim, conv_dim, unflattened_size, rep_dim, topN)
+        self.decoder = ConvDecoder(encoded_space_dim, conv_dim,unflattened_size, topN)
         
 
-    def forward(self, x):
+    def forward(self, graph):
 
-        out = self.encoder(x)
+        out = self.encoder(graph)
         out = self.decoder(out)
 
         return out

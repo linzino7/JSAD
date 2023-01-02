@@ -59,26 +59,29 @@ class AETrainer(BaseTrainer):
             epoch_start_time = time.time()
             for data in train_loader:
                 inputs, _, _, _ = data
-
+                #inputs = inputs.to(self.device)
                 graph = inputs[0]
                 length = graph.size()[1]
                 graph = graph.view(-1,1,length,length)
                 top64 = inputs[1]
-
+                #print('graph',graph.size())
+                #print('top64',top64.size())
                 graph =  graph.to(self.device)
                 top64  = top64.to(self.device)
+                #print('graph',graph.size())
 
                 # Zero the network parameter gradients
                 optimizer.zero_grad()
 
                 # Update network parameters via backpropagation: forward + backward + optimize
+                #rec = ae_net(inputs)
                 rec, outtop64 = ae_net(graph, top64)
-
+                #rec_loss = criterion(rec, inputs)
                 rec_loss = criterion1(rec, graph)
                 loss1 = torch.mean(rec_loss)
+
                 rec_loss = criterion2(outtop64, top64)
                 loss2 = torch.mean(rec_loss)
-                
                 loss = loss1+loss2
                 loss.backward()
 
@@ -127,11 +130,12 @@ class AETrainer(BaseTrainer):
                 top64 = inputs[1]
                 graph =  graph.to(self.device)
                 top64  = top64.to(self.device)
-               
+                #inputs, labels, idx = inputs.to(self.device), labels.to(self.device), idx.to(self.device)
                 labels, idx = labels.to(self.device), idx.to(self.device)
 
+                #rec = ae_net(inputs)
                 rec, top64out = ae_net(graph, top64)
-
+                #rec_loss = criterion(rec, inputs)
                 rec_loss = criterion(rec, graph)
                 scores = torch.mean(rec_loss, dim=tuple(range(1, rec.dim())))
                 # Save triple of (idx, label, score) in a list
@@ -148,7 +152,7 @@ class AETrainer(BaseTrainer):
         # Compute AUC
         _, labels, scores = zip(*idx_label_score)
         labels = np.array(labels)
-
+        #print(labels)
         scores = np.array(scores)
         self.test_auc = roc_auc_score(labels, scores)
         # Log results

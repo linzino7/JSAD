@@ -182,6 +182,8 @@ class DeepSADTrainer(BaseTrainer):
                 graph =  graph.to(self.device)
                 top64  = top64.to(self.device)
 
+                #inputs = inputs.to(self.device)
+                #outputs = net(inputs)
                 outputs = net(graph,top64)
                 n_samples += outputs.shape[0]
                 c += torch.sum(outputs, dim=0)

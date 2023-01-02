@@ -1,3 +1,4 @@
+#from curses import window
 from torch.utils.data import Dataset
 from tqdm import tqdm
 
@@ -35,7 +36,7 @@ def read_file(path, rm_id = True):
 
   return datas
 
-def logkey_to_int_graph(logkey, JH_length, JH = True):
+def logkey_to_int_graph(logkey, JH_length, windows=64, JH=True, topN=True):
     '''
     preprocessing log key.
     P represent the probability by joint histogram.
@@ -45,21 +46,21 @@ def logkey_to_int_graph(logkey, JH_length, JH = True):
     '''
 
     length = JH_length  #mean 32*32 #  HDFS 64 #BGL 128 
-    windows = 64
+    #windows = 64
 
     tmp = logkey.strip().split(" ")
     getint = [int(i) for i in tmp]
+    if topN:
+        # K′:  the first n log keys of a log sequence with the length
+        top_64_arr = []
+        if len(getint) >= windows:
+            top_64_arr = getint[0:windows]
+        else:
+            top_64_arr = getint.copy()
+            while len(top_64_arr)< windows:
+                top_64_arr.append(-1)
 
-    # K′:  the first n log keys of a log sequence with the length
-    top_64_arr = []
-    if len(getint) >= windows:
-        top_64_arr = getint[0:windows]
-    else:
-        top_64_arr = getint.copy()
-        while len(top_64_arr)< windows:
-            top_64_arr.append(-1)
-
-    top_64 = torch.tensor(top_64_arr, dtype=torch.float32)
+        top_64 = torch.tensor(top_64_arr, dtype=torch.float32)
     
     # P: probability by joint histogram
     if JH:
@@ -82,10 +83,22 @@ def logkey_to_int_graph(logkey, JH_length, JH = True):
             tmp_arr[getint[-1]][length-1] +=1
 
         tensor_2d = torch.tensor(tmp_arr, dtype=torch.float32)
-        tensor_2d = tensor_2d / len(getint) #meaN
+        tensor_2d = tensor_2d / len(getint)
+        #tensor_2d = torch.log1p(tensor_2d / len(getint)) #meaN
+        
+        # tensor_2d = tensor_2d / len(getint) #meaN
+        # #t = torch.log(torch.zeros(length, length, dtype=torch.float32)+0.5 )
+        # #t = torch.zeros(length, length, dtype=torch.float32)+0.5
+        #one = torch.tensor(1,dtype=torch.float32)
+        #tensor_2d = torch.where(tensor_2d!=0.0, tensor_2d, one)
+        # #tensor_2d = torch.log(tensor_2d)/t
+        #tensor_2d = torch.log(tensor_2d)
 
-    if JH:
+
+    if JH and topN:
         return tensor_2d, top_64
+    elif JH and not topN:
+        return tensor_2d
     else:
         return top_64
     
@@ -112,11 +125,33 @@ class graphseqLogsDataset(Dataset):
         self.dataset_name = dataset_name
         self.train = train  # training set or test set
         
-        if "MIMO" in net_name:
+        if net_name==0: # user don't give the net_name in baseline method
+            self.JH = False
+        elif "MIMO" in net_name or "onlycon" in net_name:
             self.JH = True
         else:
             self.JH = False
 
+        if net_name==0: # user don't give the net_name in baseline method
+            self.topN = True
+        elif "onlycon" in net_name:
+            self.topN = False
+        else:
+            self.topN = True
+        
+        if net_name==0:
+            self.windows = 64
+        elif "_w32" in net_name:
+            self.windows = 32
+        elif "_w128" in net_name:
+            self.windows = 128
+        elif "_w512" in net_name:
+            self.windows = 512
+        elif "_w1024" in net_name:
+            self.windows = 1024
+        else:
+            self.windows = 64
+        
         train_files = {
             'LDAP':'ldap_train_label_id_0_1',
             'HDFS':'hdfs_train_labl',
@@ -125,8 +160,13 @@ class graphseqLogsDataset(Dataset):
 
         test_files = {
             'LDAP':'ldap_test_id_0_1',
+            #'LDAP':'logkeys_cross_1022add80_rmdate_with_id_0_1_RR_UP1024_random',
+            #'LDAP':'logkeys_cross_1022add80_rmdate_with_id_0_1_RR_UP1024_random_0001',
+            #'LDAP':'logkeys_cross_1022add80_rmdate_with_id_0_1_RR_UP1024_r_0001_1024added_3wad2',
+            # 'LDAP' :'logkeys_cross_1022add80_rmdate_with_id_0_1_RR_r_0001_1024added_3wad2_U10W',
             'HDFS':'hdfs_test_labl',
-            'BGL':'BGL_test_idx_lab_128'
+            'BGL':'BGL_test_idx_lab_128',
+            #'BGL':'BGL_test_idx_lab_128_up10k' 
         }
         
         JH_length = {
@@ -146,7 +186,7 @@ class graphseqLogsDataset(Dataset):
         if self.train:
             train_file = read_file(root+'/'+dataset_name+'/'+train_files[dataset_name], rm_id[dataset_name])
             
-            X_train = [ logkey_to_int_graph(X, JH_length[dataset_name], self.JH) for X, y in train_file]
+            X_train = [ logkey_to_int_graph(X, JH_length[dataset_name], self.windows, self.JH, self.topN) for X, y in train_file]
             y_train = [ y for X, y in train_file]
             
             self.data = X_train
@@ -156,7 +196,7 @@ class graphseqLogsDataset(Dataset):
 
             X_test = []
             for X, y in tqdm(test_file):
-                X_test.append(logkey_to_int_graph(X, JH_length[dataset_name], self.JH))
+                X_test.append(logkey_to_int_graph(X, JH_length[dataset_name], self.windows, self.JH, self.topN))
             y_test = [y for X, y in test_file]
              
             self.data = X_test 

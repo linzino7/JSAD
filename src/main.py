@@ -15,10 +15,27 @@ from datasets.main import load_dataset
 # Settings
 ################################################################################
 @click.command()
-@click.argument('dataset_name', type=click.Choice(['HDFS', 'LDAP', 'BGL']))
-@click.argument('net_name', type=click.Choice(['HDFS_mlp', 'HDFS_MIMO_conv_mlp',
-                                               'BGL_mlp', 'BGL_MIMO_conv_mlp',
-                                               'LDAP_mlp', 'LDAP_MIMO_conv_mlp']))
+@click.argument('dataset_name', type=click.Choice(['mnist', 'fmnist', 'cifar10', 'arrhythmia', 'cardio', 'satellite',
+                                                   'satimage-2', 'shuttle', 'thyroid', 'hdfslog' ,'ldaplog','graph_seq',
+                                                   'network_seq','HDFS', 'LDAP', 'BGL']))
+@click.argument('net_name', type=click.Choice(['mnist_LeNet', 'fmnist_LeNet', 'cifar10_LeNet', 'arrhythmia_mlp',
+                                               'cardio_mlp', 'satellite_mlp', 'satimage-2_mlp', 'shuttle_mlp',
+                                               'thyroid_mlp','hdfslog_mlp', 'hdfslog_mlp_deep' ,'graph_mlp', 'graph_conv_MLP',
+                                               'graph_mlp_top64','graph_mlp_top64_2n',
+                                               'HDFS_mlp', 'HDFS_MIMO_conv_mlp', 'HDFS_MIMO_rest_conv_mlp',
+                                               'BGL_mlp', 'BGL_MIMO_conv_mlp', 'BGL_MIMO_rest_conv_mlp',
+                                               'LDAP_mlp', 'LDAP_MIMO_conv_mlp','LDAP_MIMO_rest_conv_mlp',
+                                               'HDFS_mlp_w32', 'BGL_mlp_w32', 'LDAP_mlp_w32',
+                                               'HDFS_mlp_w128', 'BGL_mlp_w128', 'LDAP_mlp_w128',
+                                               'HDFS_mlp_w512', 'BGL_mlp_w512', 'LDAP_mlp_w512',
+                                               'HDFS_mlp_w1024', 'BGL_mlp_w1024', 'LDAP_mlp_w1024',
+                                               'HDFS_MIMO_rest_conv_mlp_w32','BGL_MIMO_rest_conv_mlp_w32',
+                                               'LDAP_MIMO_rest_conv_mlp_w32',
+                                               'HDFS_MIMO_rest_conv_mlp_w128','BGL_MIMO_rest_conv_mlp_w128',
+                                                'LDAP_MIMO_rest_conv_mlp_w128',
+                                                'graph_conv_onlycon','graph_rest_conv_onlycon',
+                                                'Transformer_onlycon','LDAP_MIMO_Transformer',
+                                                'BGL_MIMO_Transformer','HDFS_MIMO_Transformer']))
 @click.argument('xp_path', type=click.Path(exists=True))
 @click.argument('data_path', type=click.Path(exists=True))
 @click.option('--load_config', type=click.Path(exists=True), default=None,
@@ -217,6 +234,26 @@ def main(dataset_name, net_name, xp_path, data_path, load_config, load_model, et
     indices, labels, scores = np.array(indices), np.array(labels), np.array(scores)
     idx_all_sorted = indices[np.argsort(scores)]  # from lowest to highest score
     idx_normal_sorted = indices[labels == 0][np.argsort(scores[labels == 0])]  # from lowest to highest score
+
+    if dataset_name in ('mnist', 'fmnist', 'cifar10'):
+
+        if dataset_name in ('mnist', 'fmnist'):
+            X_all_low = dataset.test_set.data[idx_all_sorted[:32], ...].unsqueeze(1)
+            X_all_high = dataset.test_set.data[idx_all_sorted[-32:], ...].unsqueeze(1)
+            X_normal_low = dataset.test_set.data[idx_normal_sorted[:32], ...].unsqueeze(1)
+            X_normal_high = dataset.test_set.data[idx_normal_sorted[-32:], ...].unsqueeze(1)
+
+        if dataset_name == 'cifar10':
+            X_all_low = torch.tensor(np.transpose(dataset.test_set.data[idx_all_sorted[:32], ...], (0,3,1,2)))
+            X_all_high = torch.tensor(np.transpose(dataset.test_set.data[idx_all_sorted[-32:], ...], (0,3,1,2)))
+            X_normal_low = torch.tensor(np.transpose(dataset.test_set.data[idx_normal_sorted[:32], ...], (0,3,1,2)))
+            X_normal_high = torch.tensor(np.transpose(dataset.test_set.data[idx_normal_sorted[-32:], ...], (0,3,1,2)))
+
+        plot_images_grid(X_all_low, export_img=xp_path + '/all_low', padding=2)
+        plot_images_grid(X_all_high, export_img=xp_path + '/all_high', padding=2)
+        plot_images_grid(X_normal_low, export_img=xp_path + '/normals_low', padding=2)
+        plot_images_grid(X_normal_high, export_img=xp_path + '/normals_high', padding=2)
+
 
 if __name__ == '__main__':
     main()

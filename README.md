@@ -53,20 +53,21 @@ mkdir data/LDAP
 Experiment result show in [here](https://github.com/linzino7/System-log-anomaly-detection-with-join-histogram-analysis/blob/main/log/DeepSAD/LDAP_MIMO_conv_mlp/log.txt)
 
 ```
-mkdir log/DeepSAD/LDAP_MIMO_conv_mlp
-python3 src/main.py LDAP LDAP_MIMO_conv_mlp log/DeepSAD/LDAP_MIMO_conv_mlp data --lr 0.001  --n_epochs 30 --lr_milestone 50 --batch_size 128 --weight_decay 0.5e-6 --pretrain True   --ae_lr 0.001 --ae_n_epochs 100 --ae_batch_size 128 --ae_weight_decay 0.5e-3 --n_known_outlier_classes 1  --ratio_known_normal 0.01 --seed 2
+mkdir log/JSAD
+mkdir log/JSAD/LDAP_MIMO_rest_conv_mlp
+python3 src/main.py LDAP LDAP_MIMO_rest_conv_mlp log/JSAD/LDAP_MIMO_rest_conv_mlp data --seed 2  --lr 0.001  --n_epochs 50 --lr_milestone 50 --batch_size 128 --weight_decay 0.5e-6 --pretrain True   --ae_lr 0.001 --ae_n_epochs 100 --ae_batch_size 128 --ae_weight_decay 0.5e-3 --n_known_outlier_classes 1  --ratio_known_normal 0.01;
 ```
 
 #### HDFS
 ```
-mkdir log/DeepSAD/HDFS_MIMO_conv_mlp
-python3 src/main.py HDFS HDFS_MIMO_conv_mlp log/DeepSAD/HDFS_MIMO_conv_mlp data --lr 0.001  --n_epochs 30 --lr_milestone 50 --batch_size 128 --weight_decay 0.5e-6 --pretrain True   --ae_lr 0.001 --ae_n_epochs 100 --ae_batch_size 128 --ae_weight_decay 0.5e-3 --n_known_outlier_classes 1  --ratio_known_normal 0.01 --seed 0
+mkdir log/DeepSAD/HDFS_MIMO_rest_conv_mlp
+python3 src/main.py HDFS HDFS_MIMO_rest_conv_mlp log/JSAD/HDFS_MIMO_rest_conv_mlp data --lr 0.001  --n_epochs 30 --lr_milestone 50 --batch_size 128 --weight_decay 0.5e-6 --pretrain True   --ae_lr 0.001 --ae_n_epochs 100 --ae_batch_size 128 --ae_weight_decay 0.5e-3 --n_known_outlier_classes 1  --ratio_known_normal 0.01 --seed 5
 ```
 
 #### BGL
 ```
-mkdir log/DeepSAD/BGL_MIMO_conv_mlp
-python3 src/main.py BGL BGL_MIMO_conv_mlp log/DeepSAD/BGL_MIMO_conv_mlp data --lr 0.001  --n_epochs 50 --lr_milestone 50 --batch_size 128 --weight_decay 0.5e-6 --pretrain True   --ae_lr 0.001 --ae_n_epochs 150 --ae_batch_size 128 --ae_weight_decay 0.5e-3 --n_known_outlier_classes 1  --ratio_known_normal 0.01 --seed 1
+mkdir log/JSAD/BGL_MIMO_rest_conv_mlp
+python3 src/main.py BGL BGL_MIMO_rest_conv_mlp log/JSAD/BGL_MIMO_rest_conv_mlp data --seed 1  --lr 0.0001  --n_epochs 150 --lr_milestone 50 --batch_size 128 --weight_decay 0.5e-6 --pretrain True   --ae_lr 0.0001 --ae_n_epochs 30 --ae_batch_size 128 --ae_weight_decay 0.5e-3 --n_known_outlier_classes 1  --ratio_known_normal 0.01
 ```
 
 

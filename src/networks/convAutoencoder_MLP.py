@@ -9,7 +9,7 @@ from base.base_net import BaseNet
 
 class ConvEncoder_MLP(BaseNet):
     
-    def __init__(self, encoded_space_dim, conv_dim , unflattened_size , rep_dim=32):
+    def __init__(self, encoded_space_dim, conv_dim , unflattened_size , rep_dim=32, topN=64):
         super().__init__()
 
         self.rep_dim = rep_dim
@@ -30,9 +30,10 @@ class ConvEncoder_MLP(BaseNet):
         
         ### Flatten layer
         self.flatten = nn.Flatten(start_dim=1)
-### Linear section
+
+        ### Linear section
         self.encoder_lin = nn.Sequential(
-            nn.Linear(conv_dim+64 , 128),   # chnnel * Hout * Wout from laset conv2d output #64 = 32*7*7 #32 =32*3*3
+            nn.Linear(conv_dim+topN, 128),   # chnnel * Hout * Wout from laset conv2d output #64 = 32*7*7 #32 =32*3*3
             nn.ReLU(True),
             nn.Linear(128, encoded_space_dim)
         )
@@ -47,20 +48,21 @@ class ConvEncoder_MLP(BaseNet):
 
 class ConvDecoder_MLP(BaseNet):
     
-    def __init__(self, encoded_space_dim,conv_dim,unflattened_size ):
+    def __init__(self, encoded_space_dim, conv_dim, unflattened_size, topN=64):
         super().__init__()
+
         self.conv_dim = conv_dim
         self.unflattened_size = unflattened_size
 
         self.decoder_lin = nn.Sequential(
             nn.Linear(encoded_space_dim, 128),
             nn.ReLU(True),
-            nn.Linear(128, conv_dim+64),
+            nn.Linear(128, conv_dim+topN),
             nn.ReLU(True)
         )
 
         self.unflatten = nn.Unflatten(dim=1, 
-        unflattened_size=unflattened_size)
+        unflattened_size=self.unflattened_size)
 
         self.decoder_conv = nn.Sequential(
             nn.Upsample(scale_factor=2, mode='nearest'),
@@ -96,13 +98,13 @@ class Conv_Autoencoder_MLP(BaseNet):
     encoded_space_dim= rep_dim
 
     '''
-    def __init__(self, encoded_space_dim, conv_dim, unflattened_size, rep_dim=32, bias=False):
+    def __init__(self, encoded_space_dim, conv_dim, unflattened_size, rep_dim=32, topN=64, bias=False):
         super().__init__()
 
         self.rep_dim = rep_dim
 
-        self.encoder = ConvEncoder_MLP(encoded_space_dim, conv_dim,rep_dim)
-        self.decoder = ConvDecoder_MLP(encoded_space_dim, conv_dim,unflattened_size)
+        self.encoder = ConvEncoder_MLP(encoded_space_dim, conv_dim, unflattened_size, rep_dim ,topN)
+        self.decoder = ConvDecoder_MLP(encoded_space_dim, conv_dim, unflattened_size, topN)
         
 
     def forward(self, graph,top64):
