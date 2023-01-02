@@ -50,7 +50,8 @@ mkdir data/LDAP
 ## Training
 ### Our Method
 #### LDAP
-Experiment result show in [here](https://github.com/linzino7/System-log-anomaly-detection-with-join-histogram-analysis/blob/main/log/DeepSAD/LDAP_MIMO_conv_mlp/log.txt)
+Experiment result show in [here](https://github.com/linzino7/JSAD/blob/main/log/JSAD/LDAP_MIMO_rest_conv_mlp/log.txt)
+
 
 ```
 mkdir log/JSAD
