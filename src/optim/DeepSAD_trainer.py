@@ -68,12 +68,6 @@ class DeepSADTrainer(BaseTrainer):
             epoch_start_time = time.time()
             for data in train_loader:
                 inputs, _, semi_targets, _ = data
-                #graph = inputs[0]
-                #length = graph.size()[1]
-                #graph = graph.view(-1,1,length,length)
-                #top64 = inputs[1]
-                #graph =  graph.to(self.device)
-                #top64  = top64.to(self.device)
                 inputs, semi_targets = inputs.to(self.device), semi_targets.to(self.device)
                 semi_targets =  semi_targets.to(self.device)
 
@@ -82,7 +76,6 @@ class DeepSADTrainer(BaseTrainer):
 
                 # Update network parameters via backpropagation: forward + backward + optimize
                 outputs = net(inputs)
-                #outputs = net(graph, top64)
                 dist = torch.sum((outputs - self.c) ** 2, dim=1)
                 losses = torch.where(semi_targets == 0, dist, self.eta * ((dist + self.eps) ** semi_targets.float()))
                 loss = torch.mean(losses)
@@ -122,12 +115,6 @@ class DeepSADTrainer(BaseTrainer):
         with torch.no_grad():
             for data in test_loader:
                 inputs, labels, semi_targets, idx = data
-                #graph = inputs[0]
-                #length = graph.size()[1]
-                #graph = graph.view(-1,1,length,length)
-                #top64 = inputs[1]
-                #graph =  graph.to(self.device)
-                #top64  = top64.to(self.device)
                 
                 inputs = inputs.to(self.device)
                 labels = labels.to(self.device)
@@ -135,7 +122,6 @@ class DeepSADTrainer(BaseTrainer):
                 idx = idx.to(self.device)
 
                 outputs = net(inputs)
-                #outputs = net(graph, top64)
                 dist = torch.sum((outputs - self.c) ** 2, dim=1)
                 losses = torch.where(semi_targets == 0, dist, self.eta * ((dist + self.eps) ** semi_targets.float()))
                 loss = torch.mean(losses)
@@ -175,16 +161,8 @@ class DeepSADTrainer(BaseTrainer):
                 # get the inputs of the batch
                 inputs, _, _, _ = data
 
-                #graph = inputs[0]
-                #length = graph.size()[1]
-                #graph = graph.view(-1,1,length,length)
-                #top64 = inputs[1]
-                #graph =  graph.to(self.device)
-                #top64  = top64.to(self.device)
-
                 inputs = inputs.to(self.device)
                 outputs = net(inputs)
-                #outputs = net(graph,top64)
                 n_samples += outputs.shape[0]
                 c += torch.sum(outputs, dim=0)
 

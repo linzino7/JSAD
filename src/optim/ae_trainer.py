@@ -31,14 +31,10 @@ class AETrainer(BaseTrainer):
 
         # Set loss
         criterion = nn.MSELoss(reduction='none')
-        #criterion1 = nn.MSELoss(reduction='none')
-        #criterion2 = nn.MSELoss(reduction='none')
 
         # Set device
         ae_net = ae_net.to(self.device)
         criterion = criterion.to(self.device)
-        #criterion1 = criterion1.to(self.device)
-        #criterion2 = criterion2.to(self.device)
 
         # Set optimizer (Adam optimizer for now)
         optimizer = optim.Adam(ae_net.parameters(), lr=self.lr, weight_decay=self.weight_decay)
@@ -62,15 +58,6 @@ class AETrainer(BaseTrainer):
             for data in train_loader:
                 inputs, _, _, _ = data
                 inputs = inputs.to(self.device)
-                #graph = inputs[0]
-                #length = graph.size()[1]
-                #graph = graph.view(-1,1,length,length)
-                #top64 = inputs[1]
-                #print('graph',graph.size())
-                #print('top64',top64.size())
-                #graph =  graph.to(self.device)
-                #top64  = top64.to(self.device)
-                #print('graph',graph.size())
 
                 # Zero the network parameter gradients
                 optimizer.zero_grad()
@@ -81,18 +68,9 @@ class AETrainer(BaseTrainer):
                 loss = torch.mean(rec_loss)
                 
                 
-                #rec, outtop64 = ae_net(graph, top64)
-                #rec_loss = criterion1(rec, graph)
-                #loss1 = torch.mean(rec_loss)
-
-                #rec_loss = criterion2(outtop64, top64)
-                #loss2 = torch.mean(rec_loss)
-                #loss = loss1+loss2
                 loss.backward()
-
                 optimizer.step()
 
-                #epoch_loss += loss1.item() +loss2.item()
                 epoch_loss += loss.item() 
                 n_batches += 1
 
@@ -130,21 +108,14 @@ class AETrainer(BaseTrainer):
         with torch.no_grad():
             for data in test_loader:
                 inputs, labels, _, idx = data
-                #graph = inputs[0]
-                #length = graph.size()[1]
-                #graph = graph.view(-1,1,length,length)
-                #top64 = inputs[1]
-                #graph =  graph.to(self.device)
-                #top64  = top64.to(self.device)
                 
                 inputs, labels, idx = inputs.to(self.device), labels.to(self.device), idx.to(self.device)
                 labels, idx = labels.to(self.device), idx.to(self.device)
 
                 rec = ae_net(inputs)
-                #rec, top64out = ae_net(graph, top64)
                 rec_loss = criterion(rec, inputs)
-                #rec_loss = criterion(rec, graph)
                 scores = torch.mean(rec_loss, dim=tuple(range(1, rec.dim())))
+
                 # Save triple of (idx, label, score) in a list
                 idx_label_score += list(zip(idx.cpu().data.numpy().tolist(),
                                             labels.cpu().data.numpy().tolist(),
@@ -159,9 +130,9 @@ class AETrainer(BaseTrainer):
         # Compute AUC
         _, labels, scores = zip(*idx_label_score)
         labels = np.array(labels)
-        #print(labels)
         scores = np.array(scores)
         self.test_auc = roc_auc_score(labels, scores)
+
         # Log results
         logger.info('Test Loss: {:.6f}'.format(epoch_loss / n_batches))
         logger.info('Test AUC: {:.2f}%'.format(100. * self.test_auc))

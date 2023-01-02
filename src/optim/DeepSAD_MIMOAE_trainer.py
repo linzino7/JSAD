@@ -81,7 +81,6 @@ class DeepSADTrainer(BaseTrainer):
                 optimizer.zero_grad()
 
                 # Update network parameters via backpropagation: forward + backward + optimize
-                #outputs = net(inputs)
                 outputs = net(graph, top64)
                 dist = torch.sum((outputs - self.c) ** 2, dim=1)
                 losses = torch.where(semi_targets == 0, dist, self.eta * ((dist + self.eps) ** semi_targets.float()))
@@ -182,8 +181,6 @@ class DeepSADTrainer(BaseTrainer):
                 graph =  graph.to(self.device)
                 top64  = top64.to(self.device)
 
-                #inputs = inputs.to(self.device)
-                #outputs = net(inputs)
                 outputs = net(graph,top64)
                 n_samples += outputs.shape[0]
                 c += torch.sum(outputs, dim=0)
